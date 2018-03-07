@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < m_jArry.length(); i++) {
                 JSONObject m_jObj = m_jArry.getJSONObject(i);
-                Log.d( LOG_TAG, "uuid: " + m_jObj.getString("uuid"));
-                Log.d( LOG_TAG, "url: " + m_jObj.getString("imageUrlString"));
+                //Log.d( LOG_TAG, "uuid: " + m_jObj.getString("uuid"));
+                //Log.d( LOG_TAG, "url: " + m_jObj.getString("imageUrlString"));
 
                 String uuid = m_jObj.getString("uuid");
                 String imgUrlStr = m_jObj.getString("imageUrlString");
@@ -72,16 +72,28 @@ public class MainActivity extends AppCompatActivity {
                 imgItem.uuid = uuid;
                 imgItem.url = imgUrlStr;
 
+                itemsList.add(imgItem);
                 if(i==0){
                     // put some redundant objects for the first item
                     itemsList.add(imgItem);
                     itemsList.add(imgItem);
                     itemsList.add(imgItem);
                 }
-                itemsList.add(imgItem);
             }
+
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.d(LOG_TAG, "json parsing errors: "+ e.getMessage());
+        }
+
+
+        //customized the order of the gridview; do swap for some rows
+        for( int i=6; i<itemsList.size(); i+=3){
+            if( (i/3) %2 ==0 ){
+                Log.i(LOG_TAG, "index:" +i);
+                ImageItem imgItem = itemsList.get(i);
+                itemsList.set(i, itemsList.get(i+2));
+                itemsList.set(i+2, imgItem);
+            }
         }
 
         GridView gridView = (GridView)findViewById(R.id.gridView1);
