@@ -8,7 +8,7 @@ import android.widget.ImageView;
  * Created by martinyeh on 2018/3/6.
  */
 
-public class GridViewItem extends ImageView {
+public class GridViewItem extends android.support.v7.widget.AppCompatImageView {
     public GridViewItem(Context context) {
         super(context);
     }

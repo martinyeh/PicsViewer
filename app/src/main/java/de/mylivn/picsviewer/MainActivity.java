@@ -2,10 +2,13 @@ package de.mylivn.picsviewer;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.GridView;
+
+import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +22,10 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
     final String LOG_TAG= "MainActivity";
+
+
+    private RecyclerView mRecyclerView;
+    private RVAdapter mRVAdapter;
 
     public String loadJSONFromAsset() {
         String json = null;
@@ -39,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(LOG_TAG, "onCreate");
         setContentView(R.layout.activity_main);
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
@@ -52,6 +61,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
+        mRecyclerView = findViewById(R.id.rv1);
+        mRecyclerView.setHasFixedSize(false);
+
+        SpannedGridLayoutManager spannedGridLayoutManager = new SpannedGridLayoutManager(
+                SpannedGridLayoutManager.Orientation.VERTICAL, 3);
+        mRecyclerView.setLayoutManager(spannedGridLayoutManager);
+        mRecyclerView.addItemDecoration(new SpaceItemDecorator(10));
+
         ArrayList<ImageItem> itemsList = new ArrayList<>();
         try {
             JSONObject obj = new JSONObject(loadJSONFromAsset());
@@ -61,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
             for (int i = 0; i < m_jArry.length(); i++) {
                 JSONObject m_jObj = m_jArry.getJSONObject(i);
-                //Log.d( LOG_TAG, "uuid: " + m_jObj.getString("uuid"));
-                //Log.d( LOG_TAG, "url: " + m_jObj.getString("imageUrlString"));
+                Log.d( LOG_TAG, "uuid: " + m_jObj.getString("uuid"));
+                Log.d( LOG_TAG, "url: " + m_jObj.getString("imageUrlString"));
 
                 String uuid = m_jObj.getString("uuid");
                 String imgUrlStr = m_jObj.getString("imageUrlString");
@@ -73,35 +90,20 @@ public class MainActivity extends AppCompatActivity {
                 imgItem.url = imgUrlStr;
 
                 itemsList.add(imgItem);
-                if(i==0){
-                    // put some redundant objects for the first item
-                    itemsList.add(imgItem);
-                    itemsList.add(imgItem);
-                    itemsList.add(imgItem);
-                }
             }
 
         } catch (JSONException e) {
             Log.d(LOG_TAG, "json parsing errors: "+ e.getMessage());
         }
 
+        mRVAdapter = new RVAdapter(MainActivity.this, itemsList);
+        mRecyclerView.setAdapter(mRVAdapter);
 
-        //customized the order of the gridview; do swap for some rows
-        for( int i=6; i<itemsList.size(); i+=3){
-            if( (i/3) %2 ==0 ){
-                Log.i(LOG_TAG, "index:" +i);
-                ImageItem imgItem = itemsList.get(i);
-                itemsList.set(i, itemsList.get(i+2));
-                itemsList.set(i+2, imgItem);
-            }
-        }
-
-        GridView gridView = (GridView)findViewById(R.id.gridView1);
-        GridViewAdaptor adapter = new GridViewAdaptor(MainActivity.this);
-        adapter.setData(itemsList);
-        gridView.setAdapter(adapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new CardsTouchHelperCallback(mRVAdapter));
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

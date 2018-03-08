@@ -7,4 +7,13 @@ package de.mylivn.picsviewer;
 public class ImageItem {
     public String uuid="" ;
     public String url ="" ;
+
+    public ImageItem(){
+
+    }
+
+    public ImageItem(String uuid, String url){
+        this.uuid = uuid;
+        this.url = url;
+    }
 }
